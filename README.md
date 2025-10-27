@@ -1,6 +1,29 @@
-# Seflow - Automated Salary Allocation on Flow Blockchain
+# 🌊 Seflow Smart Contracts - Flow Blockchain
 
-Seflow automates salary splitting for busy Indonesians, targeting 146M+ fintech users. Deposit $FLOW, set sliders (50% savings, 30% DeFi, 20% spending), lock savings in a vault (30 days) or keep in wallet, earn $FROTH rewards.
+**Automated Salary Allocation System Built on Flow**
+
+Seflow smart contracts automate salary splitting for professionals worldwide. Deposit $FLOW, set custom allocation percentages (savings, DeFi, spending), enable auto-compounding, and earn $FROTH rewards - all powered by Flow's native smart contract capabilities.
+
+## 🏆 Forte Hacks by Flow 2025 Submission
+
+This smart contract system leverages Flow's Forte network upgrade, utilizing **Actions and Workflows** for automated transaction scheduling and DeFi operations.
+
+## 📋 Contract Overview
+
+### Core Contracts
+
+- **AutoCompoundHandler** (`0x7d7f281847222367`): Manages automated yield compounding with scheduled transactions
+- **LiquidityPool**: Handles DeFi yield generation and LP token management  
+- **SeflowSalary**: Core salary splitting logic and fund allocation
+- **FROTHRewards**: Token reward system for user engagement
+
+### Key Features
+
+✅ **Smart Salary Splitting**: Automated allocation across savings, DeFi, and spending
+✅ **Scheduled Auto-Compounding**: Uses Flow's transaction scheduler for yield optimization
+✅ **Vault Locking**: 30-day lock mechanism with enhanced APY rewards
+✅ **FROTH Token Rewards**: Gamified reward system for consistent usage
+✅ **On-chain Storage**: All user preferences and state stored on Flow blockchain
 
 ## 🔨 Getting Started
 
@@ -14,39 +37,164 @@ Here are some essential resources to help you hit the ground running:
 
 ## 📦 Project Structure
 
-Your project has been set up with the following structure:
-
-- `flow.json` - This is the configuration file for your project (analogous to a `package.json` file for NPM).  It has been initialized with a basic configuration to get started.
-- `/cadence` - This is where your Cadence smart contracts code lives
-
-Inside the `cadence` folder you will find:
-- `/contracts` - This folder contains your Cadence contracts (these are deployed to the network and contain the business logic for your application)
-  - `Counter.cdc`
-- `/scripts` - This folder contains your Cadence scripts (read-only operations)
-  - `GetCounter.cdc`
-- `/transactions` - This folder contains your Cadence transactions (state-changing operations)
-  - `IncrementCounter.cdc`
-- `/tests` - This folder contains your Cadence tests (integration tests for your contracts, scripts, and transactions to verify they behave as expected)
-
-## Running the Existing Project
-
-### Executing the `GetCounter` Script
-
-To run the `GetCounter` script, use the following command:
-
-```shell
-flow scripts execute cadence/scripts/GetCounter.cdc
+```
+/cadence
+├── contracts/
+│   ├── AutoCompoundHandler.cdc          # Automated yield compounding logic
+│   ├── LiquidityPool.cdc               # DeFi LP management
+│   ├── SeflowSalary.cdc                # Core salary splitting
+│   └── FROTHRewards.cdc                # Token reward system
+├── scripts/
+│   ├── check_auto_compound_status.cdc   # Query compound status
+│   ├── get_salary_split_info.cdc       # Retrieve user allocations
+│   └── get_froth_balance.cdc           # Check reward balances
+├── transactions/
+│   ├── setup_salary_splitting.cdc      # Initialize user account
+│   ├── set_split_config.cdc            # Configure allocations
+│   ├── schedule_auto_compound.cdc       # Enable auto-compounding
+│   └── claim_froth_rewards.cdc         # Claim reward tokens
+└── tests/
+    ├── salary_splitting_test.cdc        # Core functionality tests
+    ├── auto_compound_test.cdc           # Automation tests
+    └── rewards_test.cdc                 # Token reward tests
 ```
 
-### Sending the `IncrementCounter` Transaction
+## 🔧 Smart Contract Architecture
 
-To run the `IncrementCounter` transaction, use the following command:
+### AutoCompoundHandler.cdc
+- **Purpose**: Manages scheduled transaction execution for yield compounding
+- **Key Features**:
+  - Integrates with Flow's transaction scheduler
+  - Configurable compounding intervals (daily to monthly)
+  - Real LP yield compounding (no mock data)
+  - Error handling for insufficient funds
 
-```shell
-flow transactions send cadence/transactions/IncrementCounter.cdc
+### SeflowSalary.cdc  
+- **Purpose**: Core salary allocation and management
+- **Key Features**:
+  - Three-way split: Savings, DeFi, Spending
+  - Percentage-based allocation system
+  - Vault locking mechanism (30-day periods)
+  - Integration with Flow token standards
+
+### LiquidityPool.cdc
+- **Purpose**: DeFi yield generation and LP token management
+- **Key Features**:
+  - Automated LP token minting/burning
+  - Yield calculation and distribution
+  - Compound interest algorithms
+  - Pool balance management
+
+### FROTHRewards.cdc
+- **Purpose**: Gamified token reward system
+- **Key Features**:
+  - 1% base rewards for standard transactions
+  - 1.5% enhanced rewards for vault locking
+  - Token minting and distribution logic
+  - User engagement tracking
+
+## 🚀 Running Seflow Contracts
+
+### Prerequisites
+- Flow CLI installed and configured
+- Flow testnet account with FLOW tokens
+- VS Code with Cadence extension (recommended)
+
+### Deployed Contract Addresses (Flow Testnet)
+
+```
+AutoCompoundHandler: 0x7d7f281847222367
+FlowToken: 0x7e60df042a9c0868
+FungibleToken: 0x9a0766d93b6608b7
 ```
 
-To learn more about using the CLI, check out the [Flow CLI Documentation](https://developers.flow.com/tools/flow-cli).
+### Key Operations
+
+#### 1. Check Auto-Compound Status
+```shell
+flow scripts execute cadence/scripts/check_auto_compound_status.cdc --arg Address:0x[YOUR_ADDRESS]
+```
+
+#### 2. Set Up Salary Splitting
+```shell
+flow transactions send cadence/transactions/setup_salary_splitting.cdc
+```
+
+#### 3. Configure Split Allocation
+```shell
+flow transactions send cadence/transactions/set_split_config.cdc \
+  --arg UFix64:1000.0 \    # Total salary amount
+  --arg UInt8:50 \         # Savings percentage
+  --arg UInt8:30 \         # DeFi percentage  
+  --arg UInt8:20 \         # Spending percentage
+  --arg Bool:true          # Lock vault (30 days)
+```
+
+#### 4. Enable Auto-Compounding
+```shell
+flow transactions send cadence/transactions/schedule_auto_compound.cdc \
+  --arg UInt64:7           # Interval in days (weekly)
+```
+
+#### 5. Query User Allocations
+```shell
+flow scripts execute cadence/scripts/get_salary_split_info.cdc --arg Address:0x[YOUR_ADDRESS]
+```
+
+### Example Transaction Flow
+
+1. **Initialize Account**: Set up storage and capabilities
+2. **Configure Split**: Define allocation percentages (must sum to 100%)
+3. **Enable Automation**: Schedule auto-compound with desired frequency
+4. **Monitor Status**: Check compound execution and yields
+5. **Claim Rewards**: Collect FROTH tokens earned from usage
+
+## 🔐 Security & Best Practices
+
+### Resource-Oriented Programming
+- All assets stored as Cadence resources (cannot be copied or lost)
+- Strict access control with capability-based security
+- Move semantics prevent double-spending attacks
+
+### Access Control Patterns
+- Public functions for user interactions
+- Private admin functions for contract management  
+- Capability-based resource access for automated operations
+- Time-locked vault mechanisms for enhanced security
+
+### Error Handling
+- Comprehensive input validation
+- Graceful failure modes for insufficient funds
+- Transaction rollback on any operation failure
+- Detailed logging for debugging and monitoring
+
+## 💡 Technical Innovations
+
+### Flow Forte Integration
+- **Scheduled Transactions**: Automated compounding without manual intervention
+- **Workflow Composition**: Reusable DeFi action patterns
+- **Time-based Triggers**: Configurable execution intervals
+- **Protocol Agnostic**: Works with any Flow DeFi protocol
+
+### Gas Optimization
+- Efficient resource management patterns
+- Batched operations to minimize transaction costs
+- Lazy evaluation for expensive computations
+- Optimal storage layout for frequently accessed data
+
+### Yield Calculation Algorithm
+```cadence
+// Compound interest formula implementation
+pub fun calculateCompoundYield(
+    principal: UFix64,
+    rate: UFix64,
+    periods: UInt64
+): UFix64 {
+    // A = P(1 + r/n)^(nt)
+    let compoundFactor = (1.0 + rate).power(periods)
+    return principal * compoundFactor - principal
+}
+```
 
 ## 👨‍💻 Start Developing
 
@@ -122,53 +270,73 @@ This command will run all tests with the `_test.cdc` suffix (these can be found 
 
 To learn more about testing in Cadence, check out the [Cadence Test Framework Documentation](https://cadence-lang.org/docs/testing-framework).
 
-## 🚀 Deploying Your Project
+## 🚀 Seflow Contract Deployment
 
-To deploy your project to the Flow network, you must first have a Flow account and have configured your deployment targets in the `flow.json` configuration file.
+### Current Deployment Status
 
-You can create a new Flow account using the following command:
+**✅ Flow Testnet (Live)**
+- AutoCompoundHandler: `0x7d7f281847222367`
+- Successfully handling real LP compounding (no mock data)
+- Integrated with Flow's transaction scheduler
+- Supporting scheduled auto-compound operations
 
+### Deployment Process
+
+#### 1. Prerequisites Setup
 ```shell
-flow accounts create
+# Install Flow CLI
+sh -ci "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)"
+
+# Create testnet account
+flow accounts create --network=testnet
+
+# Fund account with testnet FLOW
+# Visit: https://testnet-faucet.onflow.org/
 ```
 
-Learn more about setting up deployment targets in the [Flow CLI documentation](https://developers.flow.com/tools/flow-cli/deployment/project-contracts).
-
-### Deploying to the Flow Emulator
-
-To deploy your project to the Flow Emulator, start the emulator using the following command:
-
-```shell
-flow emulator --start
+#### 2. Configure flow.json
+```json
+{
+  "contracts": {
+    "AutoCompoundHandler": "./cadence/contracts/AutoCompoundHandler.cdc",
+    "SeflowSalary": "./cadence/contracts/SeflowSalary.cdc",
+    "LiquidityPool": "./cadence/contracts/LiquidityPool.cdc"
+  },
+  "deployments": {
+    "testnet": {
+      "account-1": ["AutoCompoundHandler", "SeflowSalary", "LiquidityPool"]
+    }
+  }
+}
 ```
 
-To deploy your project, run the following command:
-
+#### 3. Deploy to Testnet
 ```shell
-flow project deploy --network=emulator
+# Deploy all contracts
+flow project deploy --network=testnet --update
+
+# Verify deployment
+flow accounts get 0x7d7f281847222367 --network=testnet
 ```
 
-This command will start the Flow Emulator and deploy your project to it. You can now interact with your project using the Flow CLI or alternate [client](https://developers.flow.com/tools/clients).
-
-### Deploying to Flow Testnet
-
-To deploy your project to Flow Testnet you can use the following command:
-
+#### 4. Initialize Contracts
 ```shell
-flow project deploy --network=testnet
+# Set up initial liquidity pool
+flow transactions send cadence/transactions/initialize_pool.cdc --network=testnet
+
+# Configure reward parameters
+flow transactions send cadence/transactions/setup_rewards.cdc --network=testnet
 ```
 
-This command will deploy your project to Flow Testnet. You can now interact with your project on this network using the Flow CLI or any other Flow client.
+### Mainnet Deployment (Future)
 
-### Deploying to Flow Mainnet
+Seflow contracts are currently optimized for testnet development and hackathon demonstration. For mainnet deployment:
 
-To deploy your project to Flow Mainnet you can use the following command:
-
-```shell
-flow project deploy --network=mainnet
-```
-
-This command will deploy your project to Flow Mainnet. You can now interact with your project using the Flow CLI or alternate [client](https://developers.flow.com/tools/clients).
+1. **Security Audit**: Complete third-party security review
+2. **Gas Optimization**: Final gas cost optimizations
+3. **Admin Controls**: Multi-sig admin account setup
+4. **Emergency Procedures**: Pause/upgrade mechanisms
+5. **Oracle Integration**: Real-time price feeds for yield calculations
 
 ## 📚 Other Resources
 

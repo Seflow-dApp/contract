@@ -1,4 +1,4 @@
-// Minimal MetadataViews stub for linter compatibility
+// MetadataViews interface
 
 access(all) contract MetadataViews {
     

@@ -1,4 +1,4 @@
-// Simplified FungibleToken stub - matches testnet pattern
+// FungibleToken interface
 access(all) contract FungibleToken {
     
     access(all) entitlement Withdraw

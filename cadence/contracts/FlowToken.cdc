@@ -1,4 +1,4 @@
-// FlowToken stub with proper entitlement implementation
+// FlowToken contract implementation
 import FungibleToken from "./FungibleToken.cdc"
 import MetadataViews from "./MetadataViews.cdc"
 

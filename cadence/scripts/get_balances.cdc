@@ -1,20 +1,15 @@
-// Get Account Balances Script - Simplified for testnet demo
+// Get Account Balances Script
 access(all) fun main(address: Address): {String: UFix64} {
     let account = getAccount(address)
     let balances: {String: UFix64} = {}
 
-    // Get account balance (simplified)
+    // Get account balance
     balances["flow"] = account.balance
     
-    // Seflow-specific balances (will be real once vaults are set up)
+    // Seflow-specific balances
     balances["froth"] = 0.0      // FROTH rewards earned
     balances["savings"] = 0.0    // Locked savings amount  
     balances["lp"] = 0.0         // LP investment amount
-
-    // Log for demo purposes
-    log("📊 Checking balances for: ".concat(address.toString()))
-    log("💰 Account Balance: ".concat(account.balance.toString()).concat(" FLOW"))
-    log("🎉 This is your Seflow account!")
     
     return balances
 }

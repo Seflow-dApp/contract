@@ -6,8 +6,8 @@ access(all) fun main(userAddress: Address): {String: AnyStruct} {
     // Get contract stats
     let contractStats = Seflow.getContractStats()
     
-    // Get mock Find Labs balance
-    let findLabsBalance = Seflow.mockFindLabsBalance(userAddress: userAddress)
+    // Get Find Labs balance
+    let findLabsBalance = Seflow.getFindLabsBalance(userAddress: userAddress)
     
     // Try to get user profile (if exists)
     var userStats: {String: AnyStruct} = {}

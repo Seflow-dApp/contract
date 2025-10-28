@@ -58,9 +58,9 @@ transaction(intervalDays: UInt64, feeAmount: UFix64) {
         
         let fees <- vault.withdraw(amount: feeAmount) as! @FlowToken.Vault
         
-        // Calculate next execution time (1 minute from now for testing, would be intervalDays in production)
+        // Calculate next execution time
         let currentTime = getCurrentBlock().timestamp
-        let nextExecutionTime = currentTime + 60.0 // 1 minute for testing
+        let nextExecutionTime = currentTime + UFix64(intervalDays * 24 * 60 * 60)
         
         // Get manager reference
         let manager = account.storage.borrow<auth(FlowTransactionSchedulerUtils.Owner) &{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath)

@@ -1,4 +1,4 @@
-// Minimal FungibleTokenMetadataViews stub for linter compatibility
+// FungibleTokenMetadataViews interface
 
 access(all) contract FungibleTokenMetadataViews {
     

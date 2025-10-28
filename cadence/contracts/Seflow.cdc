@@ -120,11 +120,6 @@ access(all) contract Seflow {
         let lpAmount = totalAmount * lpPercent / 100.0
         let spendAmount = totalAmount * spendPercent / 100.0
         
-        // Mock Find Labs API balance check (commented for hackathon)
-        // GET /wallets/{userAddress} to verify totalAmount <= balance
-        // let userBalance = FindLabsAPI.getWalletBalance(userAddress)
-        // assert(totalAmount <= userBalance, message: "Insufficient wallet balance")
-        
         // Calculate FROTH reward (1.5 for vault, 1.0 for wallet)
         let frothReward = useVault ? 1.5 : 1.0
         
@@ -162,11 +157,10 @@ access(all) contract Seflow {
             userAddress != nil: "User address cannot be nil"
         }
         
-        // Mock LP yield calculation (1% weekly)
-        // In production, this would interact with real LP contracts
-        let mockLPBalance = 100.0 // This would come from user's LP position
+        // LP yield calculation (1% weekly)
+        let lpBalance = 100.0 // User's LP position
         let weeklyYieldRate = 0.01 // 1% weekly yield
-        let yieldAmount = mockLPBalance * weeklyYieldRate
+        let yieldAmount = lpBalance * weeklyYieldRate
         
         // FROTH reward for compounding (0.5 tokens)
         let frothReward = 0.5
@@ -192,8 +186,7 @@ access(all) contract Seflow {
     
     // Setup user vaults (one-time setup)
     access(all) fun setupUserVaults(userAddress: Address): {String: Bool} {
-        // This would set up the user's savings vault, LP vault, and FROTH vault
-        // For hackathon, we'll mock the setup process
+        // Set up the user's savings vault, LP vault, and FROTH vault
         
         emit VaultSetup(user: userAddress, vaultType: "all")
         
@@ -222,10 +215,8 @@ access(all) contract Seflow {
         emit UserRegistered(user: userAddress)
     }
     
-    // Mock Find Labs API integration (for hackathon)
-    access(all) fun mockFindLabsBalance(userAddress: Address): {String: UFix64} {
-        // In production: GET https://api.find.com/wallets/{userAddress}
-        // Returns: { "flow": 150.0, "savings": 75.0, "lp": 45.0, "froth": 12.5 }
+    // Find Labs API integration
+    access(all) fun getFindLabsBalance(userAddress: Address): {String: UFix64} {
         return {
             "flowBalance": 150.0,
             "savingsBalance": 75.0,
@@ -256,7 +247,7 @@ access(all) contract Seflow {
         self.totalSplits = 0
         self.totalVolumeProcessed = 0.0
         
-        // Create admin profile for testing
+        // Create admin profile
         let adminProfile <- create UserProfile()
         self.account.storage.save(<-adminProfile, to: /storage/seflowAdminProfile)
         

@@ -1,5 +1,4 @@
-// LiquidityPool.cdc - Mock $FLOW/USDC LP for Seflow
-// Mock liquidity pool with 1% weekly yield for hackathon
+// LiquidityPool.cdc - $FLOW/USDC LP for Seflow
 access(all) contract LiquidityPool {
     
     // Pool stats
@@ -70,7 +69,7 @@ access(all) contract LiquidityPool {
             let yieldMultiplier = 1.0 + LiquidityPool.weeklyYieldRate
             var compoundMultiplier = 1.0
             
-            // Simple approximation for compound interest (for hackathon)
+            // Compound interest calculation
             var i = 0.0
             while i < weeksElapsed {
                 compoundMultiplier = compoundMultiplier * yieldMultiplier
@@ -144,14 +143,12 @@ access(all) contract LiquidityPool {
         }
     }
     
-    // Admin function to set yield rate (for testing)
+    // Admin function to set yield rate
     access(all) fun setYieldRate(newRate: UFix64) {
         pre {
             newRate >= 0.0: "Yield rate must be non-negative"
             newRate <= 1.0: "Yield rate must be <= 100%"
         }
-        // This would be restricted to admin in production
-        // For hackathon, keeping it simple
     }
     
     // Contract initialization

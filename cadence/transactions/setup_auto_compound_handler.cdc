@@ -1,20 +1,20 @@
-import FlowTransactionScheduler from 0x8c5303eaa26202d6
-import FlowTransactionSchedulerUtils from 0x8c5303eaa26202d6
-import AutoCompoundHandler from 0x7d7f281847222367
-import FlowToken from 0x7e60df042a9c0868
-import FungibleToken from 0x9a0766d93b6608b7
+import "FlowTransactionScheduler"
+import "FlowTransactionSchedulerUtils"
+import "AutoCompoundHandler"
+import "FlowToken"
+import "FungibleToken"
 
 transaction(intervalDays: UInt64) {
     
     prepare(account: auth(BorrowValue, SaveValue, IssueStorageCapabilityController, PublishCapability, GetStorageCapabilityController) &Account) {
         
         // Create transaction scheduler manager if it doesn't exist
-        if !account.storage.check<@FlowTransactionSchedulerUtils.Manager>(from: FlowTransactionSchedulerUtils.managerStoragePath) {
+        if !account.storage.check<@{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath) {
             let manager <- FlowTransactionSchedulerUtils.createManager()
             account.storage.save(<-manager, to: FlowTransactionSchedulerUtils.managerStoragePath)
 
             // Create public capability to the manager
-            let managerRef = account.capabilities.storage.issue<&FlowTransactionSchedulerUtils.Manager>(FlowTransactionSchedulerUtils.managerStoragePath)
+            let managerRef = account.capabilities.storage.issue<&{FlowTransactionSchedulerUtils.Manager}>(FlowTransactionSchedulerUtils.managerStoragePath)
             account.capabilities.publish(managerRef, at: FlowTransactionSchedulerUtils.managerPublicPath)
         }
         
@@ -28,9 +28,6 @@ transaction(intervalDays: UInt64) {
             )
             
             account.storage.save(<-handler, to: AutoCompoundHandler.HandlerStoragePath)
-            
-            // Create execute capability for the scheduler
-            account.capabilities.storage.issue<auth(FlowTransactionScheduler.Execute) &AutoCompoundHandler.Handler>(AutoCompoundHandler.HandlerStoragePath)
             
             // Create public capability
             let publicHandlerCap = account.capabilities.storage.issue<&AutoCompoundHandler.Handler>(AutoCompoundHandler.HandlerStoragePath)

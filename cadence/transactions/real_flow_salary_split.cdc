@@ -1,6 +1,6 @@
 // Real FLOW Token Transaction
-import FungibleToken from "../contracts/FungibleToken.cdc"
-import FlowToken from "../contracts/FlowToken.cdc"
+import "FungibleToken"
+import "FlowToken"
 import "FrothToken"
 import "SavingsVault"
 import "Seflow"

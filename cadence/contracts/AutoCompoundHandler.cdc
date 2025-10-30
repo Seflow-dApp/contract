@@ -1,8 +1,8 @@
-import FlowTransactionScheduler from 0x8c5303eaa26202d6
-import FlowTransactionSchedulerUtils from 0x8c5303eaa26202d6
-import FlowToken from 0x7e60df042a9c0868
-import FungibleToken from 0x9a0766d93b6608b7
-import LiquidityPool from 0x7d7f281847222367
+import "FlowTransactionScheduler"
+import "FlowTransactionSchedulerUtils"
+import "FlowToken"
+import "FungibleToken"
+import "LiquidityPool"
 
 access(all) contract AutoCompoundHandler {
     

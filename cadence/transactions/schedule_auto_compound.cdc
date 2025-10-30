@@ -1,8 +1,8 @@
-import FlowTransactionScheduler from 0x8c5303eaa26202d6
-import FlowTransactionSchedulerUtils from 0x8c5303eaa26202d6
-import AutoCompoundHandler from 0x7d7f281847222367
-import FlowToken from 0x7e60df042a9c0868
-import FungibleToken from 0x9a0766d93b6608b7
+import "FlowTransactionScheduler"
+import "FlowTransactionSchedulerUtils"
+import "AutoCompoundHandler"
+import "FlowToken"
+import "FungibleToken"
 
 transaction(intervalDays: UInt64, feeAmount: UFix64) {
     
@@ -19,27 +19,36 @@ transaction(intervalDays: UInt64, feeAmount: UFix64) {
             executionEffort: 100
         )
         
-        log("Estimated fee for scheduled transaction: ".concat(estimate.totalCost.toString()).concat(" FLOW"))
-        
-        // Get vault for fees
+        // borrow a reference to the vault that will be used for fees
         let vault = account.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
             ?? panic("Could not borrow FlowToken vault")
         
-        // Check if we have enough funds
-        if vault.balance < estimate.totalCost {
-            panic("Insufficient funds. Need ".concat(estimate.totalCost.toString()).concat(" FLOW but only have ".concat(vault.balance.toString())))
+        let fees <- vault.withdraw(amount: feeAmount) as! @FlowToken.Vault
+
+        // Get the auto compound handler execute capability
+        let controllers = account.capabilities.storage.getControllers(forPath: AutoCompoundHandler.HandlerStoragePath)
+        
+        if controllers.length == 0 {
+            panic("No AutoCompoundHandler found. Please run setup_auto_compound.cdc transaction first to create the handler.")
         }
         
-        let fees <- vault.withdraw(amount: estimate.totalCost) as! @FlowToken.Vault
+        // Find the execute capability (not the public read-only one)
+        var handlerCap: Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>? = nil
         
-        // Get the auto compound handler capability
-        let handlerCap = account.capabilities.storage
-            .getControllers(forPath: AutoCompoundHandler.HandlerStoragePath)[0]
-            .capability as! Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>
+        for controller in controllers {
+            if let execCap = controller.capability as? Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}> {
+                handlerCap = execCap
+                break
+            }
+        }
+        
+        if handlerCap == nil {
+            panic("No execute capability found for AutoCompoundHandler. The handler exists but lacks proper execute permissions.")
+        }
         
         // Schedule the transaction directly
         let scheduledTx <- FlowTransactionScheduler.schedule(
-            handlerCap: handlerCap,
+            handlerCap: handlerCap!,
             data: nil,
             timestamp: nextExecutionTime,
             priority: FlowTransactionScheduler.Priority.Medium,

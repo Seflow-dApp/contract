@@ -1,8 +1,8 @@
-import FlowTransactionScheduler from 0x8c5303eaa26202d6
-import FlowTransactionSchedulerUtils from 0x8c5303eaa26202d6
-import AutoCompoundHandler from 0x7d7f281847222367
-import FlowToken from 0x7e60df042a9c0868
-import FungibleToken from 0x9a0766d93b6608b7
+import "FlowTransactionScheduler"
+import "FlowTransactionSchedulerUtils"
+import "AutoCompoundHandler"
+import "FlowToken"
+import "FungibleToken"
 
 transaction(intervalDays: UInt64, feeAmount: UFix64) {
     
@@ -28,18 +28,16 @@ transaction(intervalDays: UInt64, feeAmount: UFix64) {
             )
             
             account.storage.save(<-handler, to: AutoCompoundHandler.HandlerStoragePath)
-            
-            // Create execute capability for the scheduler
-            account.capabilities.storage.issue<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>(AutoCompoundHandler.HandlerStoragePath)
-            
-            // Create public capability
+
+            // Create public capability (read-only)
             let publicHandlerCap = account.capabilities.storage.issue<&{FlowTransactionScheduler.TransactionHandler}>(AutoCompoundHandler.HandlerStoragePath)
             account.capabilities.publish(publicHandlerCap, at: AutoCompoundHandler.HandlerPublicPath)
         }
         
-        // Get the execute capability for scheduling
+        // Create or get the execute capability for scheduling
         var handlerCap: Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>? = nil
         
+        // Check if we already have an execute capability
         let controllers = account.capabilities.storage.getControllers(forPath: AutoCompoundHandler.HandlerStoragePath)
         for controller in controllers {
             if let cap = controller.capability as? Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}> {
@@ -48,8 +46,15 @@ transaction(intervalDays: UInt64, feeAmount: UFix64) {
             }
         }
         
+        // If no execute capability exists, create one
         if handlerCap == nil {
-            panic("Could not get execute capability for auto-compound handler")
+            let executeHandlerCap = account.capabilities.storage.issue<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>(AutoCompoundHandler.HandlerStoragePath)
+            handlerCap = executeHandlerCap
+            log("✨ Created new execute capability for auto-compound handler")
+        }
+        
+        if handlerCap == nil {
+            panic("Failed to create execute capability for auto-compound handler")
         }
         
         // Get vault for fees
@@ -57,25 +62,26 @@ transaction(intervalDays: UInt64, feeAmount: UFix64) {
             ?? panic("Could not borrow FlowToken vault")
         
         let fees <- vault.withdraw(amount: feeAmount) as! @FlowToken.Vault
-        
+                
         // Calculate next execution time
         let currentTime = getCurrentBlock().timestamp
         let nextExecutionTime = currentTime + UFix64(intervalDays * 24 * 60 * 60)
         
-        // Get manager reference
-        let manager = account.storage.borrow<auth(FlowTransactionSchedulerUtils.Owner) &{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath)
-            ?? panic("Could not borrow Manager reference")
-        
         // Schedule the first auto-compound transaction
-        manager.schedule(
+        let scheduledTx <- FlowTransactionScheduler.schedule(
             handlerCap: handlerCap!,
             data: nil,
             timestamp: nextExecutionTime,
             priority: FlowTransactionScheduler.Priority.Medium,
-            executionEffort: 100, // Conservative gas limit
+            executionEffort: 100,
             fees: <-fees
         )
         
-        log("Auto-compound scheduled for next execution at: ".concat(nextExecutionTime.toString()))
+        log("✅ Auto-compound handler setup completed!")
+        log("📅 First auto-compound scheduled for: ".concat(nextExecutionTime.toString()))
+        log("🆔 Scheduled transaction ID: ".concat(scheduledTx.id.toString()))
+        
+        // Store or destroy the scheduled transaction resource
+        destroy scheduledTx
     }
 }
